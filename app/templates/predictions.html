@@ -1,0 +1,168 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container-fluid px-4">
+  <h1 class="mt-4 fw-bold text-dark">📈 Stock Trend & Predictions</h1>
+
+  <!-- Dropdown and Generate Button -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <label for="tickerDropdown" class="form-label">Select Subscribed Ticker</label>
+      <select class="form-select" id="tickerDropdown">
+        <option value="" disabled selected>Select a ticker...</option>
+      </select>
+    </div>
+    <div class="col-md-3 d-flex align-items-end">
+      <button class="btn btn-primary w-100" id="loadChartBtn">Generate Chart</button>
+    </div>
+  </div>
+
+  <!-- Chart Area -->
+  <div class="card shadow mb-4">
+    <div class="card-header bg-gradient-primary text-white">
+      <i class="fas fa-chart-line me-2"></i>Price Trend Chart
+    </div>
+    <div class="card-body">
+      <canvas id="trendChart" width="100%" height="40"></canvas>
+      <div id="loadingMsg" class="text-muted mt-3" style="display: none;">Loading chart data...</div>
+      <div id="errorMsg" class="text-danger mt-3"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart Styling -->
+<style>
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, #0d1b2a, #1b263b, #415a77);
+  }
+</style>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Chart Script -->
+<script>
+  document.addEventListener("DOMContentLoaded", async () => {
+    const dropdown = document.getElementById("tickerDropdown");
+    const button = document.getElementById("loadChartBtn");
+    const ctx = document.getElementById("trendChart").getContext("2d");
+    const loadingMsg = document.getElementById("loadingMsg");
+    const errorMsg = document.getElementById("errorMsg");
+    let trendChart;
+
+    // Fetch available tickers
+    try {
+      const res = await fetch('/get_tickers', { credentials: 'include' });
+      const tickers = await res.json();
+      tickers.forEach(ticker => {
+        const option = document.createElement("option");
+        option.value = ticker;
+        option.textContent = ticker;
+        dropdown.appendChild(option);
+      });
+    } catch (err) {
+      console.error("Error fetching tickers:", err);
+      errorMsg.textContent = "⚠️ Unable to load tickers.";
+    }
+
+    // Chart Load on button click
+    button.addEventListener("click", async () => {
+      const ticker = dropdown.value;
+      if (!ticker) {
+        errorMsg.textContent = "⚠️ Please select a ticker.";
+        return;
+      }
+
+      errorMsg.textContent = "";
+      loadingMsg.style.display = "block";
+
+      try {
+        const res = await fetch(`/get_predicted_data?ticker=${ticker}`);
+        const data = await res.json();
+        loadingMsg.style.display = "none";
+
+        if (!data || !data.dates || !data.actual_prices || !data.predicted_prices) {
+          errorMsg.textContent = "⚠️ Incomplete data received.";
+          return;
+        }
+
+        // Destroy old chart
+        if (trendChart) trendChart.destroy();
+
+        trendChart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: data.dates,
+            datasets: [
+              {
+                label: "Actual Price",
+                data: data.actual_prices,
+                borderColor: "#00b4d8",
+                backgroundColor: "rgba(0, 180, 216, 0.1)",
+                tension: 0.3,
+                fill: true,
+                pointRadius: 2
+              },
+              {
+                label: "Predicted Price",
+                data: data.predicted_prices,
+                borderColor: "#f77f00",
+                backgroundColor: "rgba(247, 127, 0, 0.1)",
+                tension: 0.3,
+                borderDash: [6, 4],
+                fill: true,
+                pointRadius: 2
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            interaction: {
+              mode: 'index',
+              intersect: false
+            },
+            plugins: {
+              title: {
+                display: true,
+                text: `📊 Price Trend for ${ticker}`
+              },
+              tooltip: {
+                mode: 'index',
+                intersect: false
+              },
+              legend: {
+                position: 'top'
+              }
+            },
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: 'Date'
+                }
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: 'Price (USD)'
+                },
+                beginAtZero: false,
+                ticks: {
+                  callback: function(value) {
+                    return `$${value}`;
+                  }
+                }
+              }
+            }
+          }
+        });
+
+      } catch (err) {
+        console.error("Error loading trend data:", err);
+        loadingMsg.style.display = "none";
+        errorMsg.textContent = "⚠️ Error loading trend data. Try again.";
+      }
+    });
+  });
+</script>
+{% endblock %}

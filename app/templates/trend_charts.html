@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="Advanced and basic stock analytics dashboard" />
+    <meta name="author" content="" />
+    <title>Dashboard - StoX</title>
+    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet" />
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <!-- Bootstrap CSS (for responsive layout) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS for mobile responsiveness -->
+    <style>
+      canvas {
+        width: 100% !important;
+        height: auto !important;
+      }
+      @media (max-width: 768px) {
+        .chart-card canvas {
+          min-height: 300px;
+        }
+        .card-body {
+          padding: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body class="sb-nav-fixed">
+    <!-- Navbar -->
+    <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+      <a class="navbar-brand ps-3" href="/dashboard">StoX</a>
+      <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="ms-auto me-3 my-2 my-md-0">
+        <a href="/home" class="btn btn-outline-light">
+          <i class="fas fa-home me-1"></i> Go to Home
+        </a>
+      </div>
+      <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-user fa-fw"></i>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="#!">Settings</a></li>
+            <li><a class="dropdown-item" href="#!">Activity Log</a></li>
+            <li><hr class="dropdown-divider" /></li>
+            <li><a class="dropdown-item" href="/logout">Logout</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Sidebar and Main Layout -->
+    <div id="layoutSidenav">
+      <div id="layoutSidenav_nav">
+        <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+          <div class="sb-sidenav-menu">
+            <div class="nav">
+              <div class="sb-sidenav-menu-heading">Home</div>
+              <a class="nav-link" href="/dashboard">
+                <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                Dashboard
+              </a>
+              <div class="sb-sidenav-menu-heading">My StoX</div>
+              <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts" aria-expanded="false" aria-controls="collapseLayouts">
+                <div class="sb-nav-link-icon"><i class="fas fa-list"></i></div>
+                My Tickers
+                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+              </a>
+              <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
+                <nav class="sb-sidenav-menu-nested nav">
+                  <a class="nav-link" href="/subscriptions">Subscribed Tickers</a>
+                  <a class="nav-link" href="/manage_subscription">Manage Subscriptions</a>
+                </nav>
+              </div>
+              <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePages" aria-expanded="false" aria-controls="collapsePages">
+                <div class="sb-nav-link-icon"><i class="fas fa-chart-line"></i></div>
+                StoX Analytics
+                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+              </a>
+              <div class="collapse" id="collapsePages" aria-labelledby="headingTwo" data-bs-parent="#sidenavAccordion">
+                <nav class="sb-sidenav-menu-nested nav accordion" id="sidenavAccordionPages">
+                  <nav class="sb-sidenav-menu-nested nav">
+                    <a class="nav-link" href="/trend_charts">Trend Charts</a>
+                    <a class="nav-link" href="/insights">What AI Thinks</a>
+                    <a class="nav-link" href="/predictions">Predictions</a>
+                  </nav>
+                </nav>
+              </div>
+              <div class="sb-sidenav-menu-heading">Recommandations</div>
+              <a class="nav-link" href="charts.html">
+                <div class="sb-nav-link-icon"><i class="fas fa-thumbs-up"></i></div>
+                Recommanded Tickers
+              </a>
+            </div>
+          </div>
+          <div class="sb-sidenav-footer">
+            <div class="small">Logged in as:</div>
+            {{ first_name }}
+          </div>
+        </nav>
+      </div>
+
+      <div id="layoutSidenav_content">
+        <main>
+          <div id="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=True) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+          </div>
+          <div class="container-fluid px-4">
+            <h2 class="mt-4">Advanced & Basic Stock Analytics</h2>
+
+            <!-- About the Charts Section -->
+            <div class="alert alert-info">
+              <h4>About the Charts</h4>
+              <p>
+                This dashboard provides two sets of analytics:
+              </p>
+              <ul>
+                <li>
+                  <strong>Basic Charts:</strong> Visualize daily trends with a Price Trend Chart (closing prices), Trading Volume Chart, and OHLC Chart (Open, High, Low, Close).
+                </li>
+                <li>
+                  <strong>Advanced Analytics:</strong> Gain deeper insights with a Price Chart with SMAs & Bollinger Bands, and dedicated RSI and MACD charts.
+                </li>
+              </ul>
+              <a class="btn btn-link" data-bs-toggle="collapse" href="#moreInfo" role="button" aria-expanded="false" aria-controls="moreInfo">
+                View More
+              </a>
+              <div class="collapse" id="moreInfo">
+                <div class="card card-body">
+                  <p>
+                    <strong>Price Trend Chart:</strong> Displays closing prices over time to help you identify long-term trends and short-term fluctuations.
+                  </p>
+                  <p>
+                    <strong>Trading Volume Chart:</strong> Illustrates the number of shares traded; spikes in volume can indicate significant market activity.
+                  </p>
+                  <p>
+                    <strong>OHLC Chart:</strong> Provides a detailed snapshot of daily trading by showing the opening, high, low, and closing prices.
+                  </p>
+                  <p>
+                    <strong>Price Chart with SMAs & Bollinger Bands:</strong> Overlays simple moving averages and volatility bands over price data, which can help indicate potential reversals or breakouts.
+                  </p>
+                  <p>
+                    <strong>RSI Chart:</strong> Measures the speed and change of price movements, helping you identify overbought or oversold conditions.
+                  </p>
+                  <p>
+                    <strong>MACD Chart:</strong> Compares moving averages to reveal momentum shifts and potential trend reversals.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Insights Section -->
+            <div class="alert alert-secondary">
+              <h5>Market Insights & Suggestions</h5>
+              <ul id="insights-list">
+                <!-- Insights will be added here -->
+              </ul>
+            </div>
+
+            <!-- Dropdowns for selecting ticker and data range -->
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="ticker-select">Select Ticker</label>
+                  <select id="ticker-select" class="form-control"></select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="range-select">Select Data Range</label>
+                  <select id="range-select" class="form-control">
+                    <option value="daily" >Daily</option>
+                    <option value="monthly" selected>Monthly</option>
+                    <option value="yearly">Yearly</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <br>
+            <div id="chart-info">
+              <p id="data-range">Data range: Loading...</p>
+            </div>
+
+            <!-- Basic Charts Section -->
+            <div class="row">
+              <!-- Price Trend Chart -->
+              <div class="col-md-12">
+                <div class="card shadow-sm mb-4 chart-card" id="card-priceTrend">
+                  <div class="card-header">
+                    Price Trend Chart
+                  </div>
+                  <div class="card-body">
+                    <canvas id="priceTrendChart"></canvas>
+                  </div>
+                </div>
+              </div>
+              <!-- Trading Volume Chart -->
+              <div class="col-md-12">
+                <div class="card shadow-sm mb-4 chart-card" id="card-volume">
+                  <div class="card-header">
+                    Trading Volume Chart
+                  </div>
+                  <div class="card-body">
+                    <canvas id="volumeChart"></canvas>
+                  </div>
+                </div>
+              </div>
+              <!-- OHLC Chart -->
+              <div class="col-md-12">
+                <div class="card shadow-sm mb-4 chart-card" id="card-ohlc">
+                  <div class="card-header">
+                    OHLC Chart
+                  </div>
+                  <div class="card-body">
+                    <canvas id="ohlcChart"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Advanced Analytics Section -->
+            <div class="row">
+              <!-- Price Chart with SMAs & Bollinger Bands -->
+              <div class="col-md-12">
+                <div class="card shadow-sm mb-4 chart-card" id="card-price">
+                  <div class="card-header">
+                    Price Chart with SMAs & Bollinger Bands
+                  </div>
+                  <div class="card-body">
+                    <canvas id="priceChart"></canvas>
+                  </div>
+                </div>
+              </div>
+              <!-- RSI Chart -->
+              <div class="col-md-6">
+                <div class="card shadow-sm mb-4 chart-card" id="card-rsi">
+                  <div class="card-header">
+                    RSI Chart
+                  </div>
+                  <div class="card-body">
+                    <canvas id="rsiChart"></canvas>
+                  </div>
+                </div>
+              </div>
+              <!-- MACD Chart -->
+              <div class="col-md-6">
+                <div class="card shadow-sm mb-4 chart-card" id="card-macd">
+                  <div class="card-header">
+                    MACD Chart
+                  </div>
+                  <div class="card-body">
+                    <canvas id="macdChart"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Statistics Table -->
+            <div class="row">
+              <div class="col-md-12">
+                <div class="card shadow-sm mb-4">
+                  <div class="card-header bg-secondary text-white">Stock Statistics</div>
+                  <div class="card-body">
+                    <table class="table table-striped" id="stats-table">
+                      <thead>
+                        <tr>
+                          <th>Metric</th>
+                          <th>Value</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <!-- Rows inserted dynamically -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </main>
+        <footer class="py-4 bg-light mt-auto">
+          <div class="container-fluid px-4">
+            <div class="d-flex align-items-center justify-content-between small">
+              <div class="text-muted">Copyright &copy; Your Website 2023</div>
+              <div>
+                <a href="#">Privacy Policy</a>
+                &middot;
+                <a href="#">Terms &amp; Conditions</a>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+    <script>
+      $(document).ready(function () {
+        var mobileFontSize = window.innerWidth < 768 ? 10 : 12;
+        var mobileLegendBoxWidth = window.innerWidth < 768 ? 10 : 20;
+        
+        let priceTrendChart, volumeChart, ohlcChart;
+        let priceChart, rsiChart, macdChart;
+        
+        $.getJSON('/get_tickers', function (tickers) {
+          let tickerDropdown = $("#ticker-select");
+          if (tickers.length > 0) {
+            tickers.forEach(ticker => {
+              tickerDropdown.append(new Option(ticker, ticker));
+            });
+            loadStockData(tickers[0]);
+          } else {
+            tickerDropdown.append(new Option("No tickers subscribed", ""));
+          }
+        });
+        
+        function populateStatsTable(stats) {
+          let tbody = $("#stats-table tbody");
+          tbody.empty();
+          for (let key in stats) {
+            let formattedKey = key.replace("_", " ").toUpperCase();
+            tbody.append(`<tr><td>${formattedKey}</td><td>${stats[key]}</td></tr>`);
+          }
+        }
+        
+        function populateInsights(insights) {
+          let ul = $("#insights-list");
+          ul.empty();
+          if (insights.length === 0) {
+            ul.append("<li>No insights available at the moment.</li>");
+          } else {
+            insights.forEach(insight => {
+              ul.append(`<li>${insight}</li>`);
+            });
+          }
+        }
+        
+        function loadStockData(ticker) {
+          if (!ticker) return;
+          let selectedRange = $("#range-select").val();
+          $.getJSON(`/get_stock_data/${ticker}?range=${selectedRange}`, function (data) {
+            if (data.error) {
+              alert(data.error);
+              return;
+            }
+            
+            if (priceTrendChart) priceTrendChart.destroy();
+            if (volumeChart) volumeChart.destroy();
+            if (ohlcChart) ohlcChart.destroy();
+            if (priceChart) priceChart.destroy();
+            if (rsiChart) rsiChart.destroy();
+            if (macdChart) macdChart.destroy();
+            
+            let ctx1 = document.getElementById("priceTrendChart").getContext("2d");
+            priceTrendChart = new Chart(ctx1, {
+              type: "line",
+              data: {
+                labels: data.dates,
+                datasets: [{
+                  label: "Closing Price",
+                  data: data.prices,
+                  borderColor: "blue",
+                  fill: false
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                legend: { labels: { fontSize: mobileFontSize, boxWidth: mobileLegendBoxWidth } },
+                scales: {
+                  x: { ticks: { fontSize: mobileFontSize } },
+                  y: { ticks: { fontSize: mobileFontSize } }
+                }
+              }
+            });
+            
+            let ctx2 = document.getElementById("volumeChart").getContext("2d");
+            volumeChart = new Chart(ctx2, {
+              type: "bar",
+              data: {
+                labels: data.dates,
+                datasets: [{
+                  label: "Trading Volume",
+                  data: data.volume,
+                  backgroundColor: "green"
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                legend: { labels: { fontSize: mobileFontSize, boxWidth: mobileLegendBoxWidth } },
+                scales: {
+                  x: { ticks: { fontSize: mobileFontSize } },
+                  y: { ticks: { fontSize: mobileFontSize } }
+                }
+              }
+            });
+            
+            let ctx3 = document.getElementById("ohlcChart").getContext("2d");
+            ohlcChart = new Chart(ctx3, {
+              type: "line",
+              data: {
+                labels: data.dates,
+                datasets: [
+                  { label: "Open", data: data.open, borderColor: "orange", fill: false },
+                  { label: "High", data: data.high, borderColor: "red", fill: false },
+                  { label: "Low", data: data.low, borderColor: "purple", fill: false },
+                  { label: "Close", data: data.close, borderColor: "blue", fill: false }
+                ]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                legend: { labels: { fontSize: mobileFontSize, boxWidth: mobileLegendBoxWidth } },
+                scales: {
+                  x: { ticks: { fontSize: mobileFontSize } },
+                  y: { ticks: { fontSize: mobileFontSize } }
+                }
+              }
+            });
+            
+            let ctx4 = document.getElementById("priceChart").getContext("2d");
+            priceChart = new Chart(ctx4, {
+              type: "line",
+              data: {
+                labels: data.dates,
+                datasets: [
+                  { label: "Close", data: data.prices, borderColor: "blue", fill: false },
+                  { label: "SMA20", data: data.SMA20, borderColor: "green", fill: false },
+                  { label: "SMA50", data: data.SMA50, borderColor: "red", fill: false },
+                  { label: "BB Upper", data: data.BB_upper, borderColor: "gray", borderDash: [5, 5], fill: false },
+                  { label: "BB Lower", data: data.BB_lower, borderColor: "gray", borderDash: [5, 5], fill: false }
+                ]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                legend: { labels: { fontSize: mobileFontSize, boxWidth: mobileLegendBoxWidth } },
+                scales: {
+                  x: { ticks: { fontSize: mobileFontSize } },
+                  y: { ticks: { fontSize: mobileFontSize } }
+                }
+              }
+            });
+            
+            let ctx5 = document.getElementById("rsiChart").getContext("2d");
+            rsiChart = new Chart(ctx5, {
+              type: "line",
+              data: {
+                labels: data.dates,
+                datasets: [{
+                  label: "RSI",
+                  data: data.RSI,
+                  borderColor: "purple",
+                  fill: false
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                legend: { labels: { fontSize: mobileFontSize, boxWidth: mobileLegendBoxWidth } },
+                scales: {
+                  x: { ticks: { fontSize: mobileFontSize } },
+                  y: { ticks: { fontSize: mobileFontSize }, min: 0, max: 100 }
+                }
+              }
+            });
+            
+            let ctx6 = document.getElementById("macdChart").getContext("2d");
+            macdChart = new Chart(ctx6, {
+              type: "line",
+              data: {
+                labels: data.dates,
+                datasets: [
+                  { label: "MACD", data: data.MACD, borderColor: "orange", fill: false },
+                  { label: "Signal", data: data.MACD_signal, borderColor: "brown", fill: false }
+                ]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                legend: { labels: { fontSize: mobileFontSize, boxWidth: mobileLegendBoxWidth } },
+                scales: {
+                  x: { ticks: { fontSize: mobileFontSize } },
+                  y: { ticks: { fontSize: mobileFontSize } }
+                }
+              }
+            });
+            
+            let startDate = data.dates[0];
+            let endDate = data.dates[data.dates.length - 1];
+            $("#data-range").text(`Data range: ${startDate} to ${endDate}`);
+            
+            populateStatsTable(data.stats);
+            populateInsights(data.insights);
+            
+          }).fail(function () {
+            alert("Failed to fetch stock data.");
+          });
+        }
+        
+        $(document).on("change", "#ticker-select", function () {
+          loadStockData($(this).val());
+        });
+    
+        $(document).on("change", "#range-select", function () {
+          loadStockData($("#ticker-select").val());
+        });
+      });
+    </script>
+  </body>
+</html>
+
+

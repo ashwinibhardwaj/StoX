@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Verify OTP - StoX</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login_register.css') }}" />
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+  </head>
+  <body class="dark-bg">
+    <div class="layout">
+      <header class="site-header">
+        <h1 class="site-logo">StoX</h1>
+      </header>
+      <main class="content">
+        <div class="card otp-card">
+          <div class="card-header">
+            <h2>Verify OTP</h2>
+          </div>
+          <div class="card-body">
+            <div id="flash-messages">
+              {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                  <div class="alert">
+                    {% for message in messages %}
+                      <p>{{ message }}</p>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              {% endwith %}
+            </div>
+            <form method="POST" action="{{ url_for('verify_otp') }}" class="form">
+              <div class="input-group">
+                <input type="text" name="otp" placeholder="Enter OTP" required />
+                <label>OTP</label>
+              </div>
+              <div class="row">
+                <div class="col">
+                  <p>Time remaining: <span id="timer">01:00</span></p>
+                </div>
+                <div class="col">
+                  <button id="resendOtpButton" type="button" class="btn" onclick="resendOtp()">Resend OTP</button>
+                </div>
+              </div>
+              <div class="actions">
+                <button type="submit" class="btn">Verify OTP</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </main>
+      <footer class="site-footer">
+        <p>&copy; Your Website 2023. <a class="link" href="#">Privacy Policy</a> &middot; <a class="link" href="#">Terms &amp; Conditions</a></p>
+      </footer>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+    <script>
+      // Timer functionality
+      var timeLeft = 60; // 60 seconds
+      function startTimer() {
+          var timerElement = document.getElementById("timer");
+          var interval = setInterval(function() {
+              var minutes = Math.floor(timeLeft / 60);
+              var seconds = timeLeft % 60;
+              timerElement.textContent = formatTime(minutes) + ":" + formatTime(seconds);
+              timeLeft--;
+              if (timeLeft < 0) {
+                  clearInterval(interval);
+                  alert("OTP expired. Redirecting to register page...");
+                  window.location.href = "/register_page";
+              }
+          }, 1000);
+      }
+      function formatTime(time) {
+          return time < 10 ? "0" + time : time;
+      }
+      window.onload = startTimer;
+    </script>
+  </body>
+</html>

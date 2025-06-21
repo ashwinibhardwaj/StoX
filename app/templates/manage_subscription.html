@@ -1,0 +1,94 @@
+{% extends "layout.html" %}
+
+{% block title %}Manage Subscriptions - StoX{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+  <h1 class="mt-4">Manage your subscriptions</h1>
+
+
+  <!-- Subscribe Form -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <i class="fas fa-plus-circle me-1"></i>
+      Subscribe to a Company
+    </div>
+    <div class="card-body">
+      <form id="subscribeForm" action="{{ url_for('subscribe') }}" method="POST">
+        <div class="mb-3">
+          <label for="company-query" class="form-label">Enter Company Name</label>
+          <input type="text" id="company-query" class="form-control" placeholder="e.g., Reliance Industries" />
+          <button type="button" id="search-btn" class="btn btn-primary mt-2">Search</button>
+        </div>
+        <div class="mb-3">
+          <label for="suggestions" class="form-label">Select from Suggestions</label>
+          <select class="form-control" id="suggestions" name="ticker"></select>
+          <!-- Hidden field to store company name -->
+          <input type="hidden" name="company_name" id="company_name" />
+        </div>
+        <button type="submit" class="btn btn-success" id="subscribeButton">
+          <i class="fas fa-plus"></i> Subscribe
+        </button>
+      </form>
+      <div id="subscribeMessage" class="mt-4"></div>
+    </div>
+  </div>
+
+  <!-- Unsubscribe Form -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <i class="fas fa-minus-circle me-1"></i>
+      Unsubscribe from Ticker
+    </div>
+    <div class="card-body">
+      <form id="unsubscribeForm" action="{{ url_for('unsubscribe') }}" method="POST">
+        <div class="input-group mb-3">
+          <input type="text" name="ticker" class="form-control" placeholder="Enter ticker symbol to unsubscribe" id="tickerUnsubscribe" />
+          <button class="btn btn-danger" type="submit" id="unsubscribeButton">
+            <i class="fas fa-minus"></i> Unsubscribe
+          </button>
+        </div>
+      </form>
+      <div id="unsubscribeMessage" class="mt-4"></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+{{ super() }}
+<!-- Page-specific scripts only for this page -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  // Fetch suggestions from server on search
+  $("#search-btn").click(function () {
+    let query = $("#company-query").val().trim();
+    if (!query) {
+      alert("Please enter a company name.");
+      return;
+    }
+    $.getJSON("/suggest_company", { query: query }, function (data) {
+      let suggestionsDropdown = $("#suggestions");
+      suggestionsDropdown.empty();
+      if (data.suggestions && data.suggestions.length > 0) {
+        data.suggestions.forEach(function (item) {
+          suggestionsDropdown.append(
+            $("<option>").val(item.ticker).text(item.company_name + " (" + item.ticker + ")")
+          );
+        });
+        $("#company_name").val(data.suggestions[0].company_name);
+      } else {
+        suggestionsDropdown.append($("<option>").val("").text("No suggestions found"));
+        $("#company_name").val("");
+      }
+    });
+  });
+
+  // Update hidden company_name when selection changes
+  $("#suggestions").change(function () {
+    let selectedText = $(this).find("option:selected").text();
+    let companyName = selectedText.split(" (")[0];
+    $("#company_name").val(companyName);
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,182 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+/* Global Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #0d1b2a, #1b263b, #415a77);
+  color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.layout {
+  width: 100%;
+  max-width: 500px;
+  padding: 20px;
+}
+
+/* Header */
+.site-logo {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #00aaff;
+  text-shadow: 0px 0px 15px rgba(0, 170, 255, 0.8);
+  margin-bottom: 20px;
+}
+
+/* Card Styles */
+.card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease-in-out;
+  width: 100%;
+}
+
+.card-header {
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+/* Input & Form Styles */
+.input-group,
+.checkbox-group {
+  margin-bottom: 15px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+/* Placeholder styles for input fields */
+.input-group input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.3s ease;
+}
+
+.input-group input:focus::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.input-group input:focus {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+}
+
+.checkbox-group input {
+  margin-right: 8px;
+}
+
+.checkbox-group label {
+  font-size: 0.9rem;
+}
+
+/* Button Styles */
+.btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #00aaff, #0077cc);
+  color: white;
+  transition: all 0.3s ease-in-out;
+}
+
+.btn:hover {
+  background: linear-gradient(135deg, #0077cc, #005f99);
+  transform: scale(1.05);
+}
+
+/* Link Styles */
+.link {
+  color: #00aaff;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+/* Flash Messages */
+.alert {
+  background: rgba(255, 77, 77, 0.8);
+  color: white;
+  padding: 10px;
+  text-align: center;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+/* Footer */
+.site-footer {
+  text-align: center;
+  font-size: 0.9rem;
+  margin-top: 20px;
+}
+
+/* Form Layout for Rows */
+.row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.row .col {
+  flex: 1;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .layout {
+    max-width: 90%;
+  }
+  .row {
+    flex-direction: row;
+  }
+}
+
+@media (max-width: 480px) {
+  .site-logo {
+    font-size: 1.8rem;
+  }
+  .card-header {
+    font-size: 1.5rem;
+  }
+  .btn {
+    font-size: 1rem;
+  }
+  .row {
+    flex-direction: column;
+  }
+}

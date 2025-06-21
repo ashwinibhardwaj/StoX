@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+
+{% block title %}My Subscribed Tickers{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+  <h1 class="mt-4">Subscribed Stock Tickers</h1>
+
+  <!-- Flash Messages (if needed) -->
+  <div id="flash-messages">
+    {% with messages = get_flashed_messages(with_categories=True) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Subscriptions Table -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <i class="fas fa-list me-1"></i>
+      List of Subscribed Tickers
+    </div>
+    <div class="card-body">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Stock Ticker</th>
+            <th>Company Name</th>
+            <th>Subscription Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if subscriptions %}
+            {% for subscription in subscriptions %}
+              <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ subscription.ticker }}</td>
+                <td>{{ subscription.company_name }}</td>
+                <td>{{ subscription.created_at }}</td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="4" class="text-center">No subscriptions found.</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+{{ super() }}
+{% endblock %}

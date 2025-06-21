@@ -1,0 +1,184 @@
+{% extends "layout.html" %}
+
+{% block title %}Home - StoX{% endblock %}
+
+{% block content %}
+<!-- Animation Library -->
+<link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+
+<style>
+  .card:hover {
+    transform: translateY(-6px);
+    transition: transform 0.3s ease;
+  }
+  .section-bg {
+    background: linear-gradient(135deg, #fdfbfb, #ebedee);
+    border-radius: 12px;
+  }
+  .feature-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+  }
+  .feature-box:hover {
+    background-color: #f1f1f1;
+    border-radius: 10px;
+    transition: background-color 0.2s ease;
+  }
+  .step-box {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+    transition: 0.3s;
+  }
+  .step-box:hover {
+    transform: translateY(-4px);
+  }
+  .step-icon {
+    font-size: 24px;
+    color: #0d6efd;
+    margin-bottom: 10px;
+  }
+</style>
+
+<!-- Welcome -->
+<div class="my-5 text-center" data-aos="fade-down">
+  <h2 class="fw-bold text-dark mb-2">👋 Welcome back, {{ first_name }}!</h2>
+  <p class="lead text-muted">Get real-time insights, predictions, and market trends tailored to your preferences.</p>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-5">
+  {% set cards = [
+    {'title': 'View Trends', 'desc': 'Analyze performance over time.', 'icon': 'chart-line', 'link': '/trend_charts', 'color': 'primary'},
+    {'title': 'Get Predictions', 'desc': 'AI-based stock predictions.', 'icon': 'bolt', 'link': '/insights', 'color': 'success'},
+    {'title': 'My Subscriptions', 'desc': 'Manage your stock tickers.', 'icon': 'list', 'link': '/subscriptions', 'color': 'info'},
+    {'title': 'Recommendations', 'desc': 'Curated just for you.', 'icon': 'rocket', 'link': '#', 'color': 'dark'}
+  ] %}
+  {% for card in cards %}
+  <div class="col-md-6 col-xl-3 mb-4" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
+    <div class="card text-white bg-{{ card.color }} h-100 shadow-lg">
+      <div class="card-body d-flex align-items-center">
+        <i class="fas fa-{{ card.icon }} fa-2x me-3"></i>
+        <div>
+          <h5 class="card-title mb-1">{{ card.title }}</h5>
+          <p class="card-text small">{{ card.desc }}</p>
+        </div>
+      </div>
+      <a href="{{ card.link }}" class="card-footer text-white text-decoration-none small">
+        Explore <i class="fas fa-arrow-right float-end"></i>
+      </a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Why Choose StoX -->
+<section class="py-5 px-3 px-md-5 rounded shadow-sm section-bg" data-aos="fade-up">
+  <div class="container">
+    <div class="row align-items-center justify-content-between">
+      <div class="col-lg-7">
+        <h3 class="fw-bold mb-4 text-dark">🚀 Why Choose <span class="text-primary">StoX</span>?</h3>
+        <p class="mb-4 text-muted">StoX empowers your financial decisions through cutting-edge AI and smart market analysis. Here's how we help you stay ahead:</p>
+
+        <div class="mb-4 d-flex align-items-start feature-box">
+          <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 feature-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <div>
+            <h6 class="fw-semibold text-dark mb-1">Interactive Trend Charts</h6>
+            <p class="text-muted small mb-0">Visualize stock behavior with clean, dynamic charts and historical patterns.</p>
+          </div>
+        </div>
+
+        <div class="mb-4 d-flex align-items-start feature-box">
+          <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3 feature-icon">
+            <i class="fas fa-brain"></i>
+          </div>
+          <div>
+            <h6 class="fw-semibold text-dark mb-1">AI-Powered Predictions</h6>
+            <p class="text-muted small mb-0">Forecast future trends using machine learning models trained on real market data.</p>
+          </div>
+        </div>
+
+        <div class="mb-4 d-flex align-items-start feature-box">
+          <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center me-3 feature-icon">
+            <i class="fas fa-database"></i>
+          </div>
+          <div>
+            <h6 class="fw-semibold text-dark mb-1">Data-Driven Insights</h6>
+            <p class="text-muted small mb-0">Understand what matters with insights drawn from real stock metrics and analytics.</p>
+          </div>
+        </div>
+
+        <div class="d-flex align-items-start feature-box">
+          <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center me-3 feature-icon">
+            <i class="fas fa-thumbs-up"></i>
+          </div>
+          <div>
+            <h6 class="fw-semibold text-dark mb-1">Smart Stock Picks</h6>
+            <p class="text-muted small mb-0">Receive curated ticker recommendations aligned with your interests and trends.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Icon -->
+      <div class="col-lg-4 text-center mt-5 mt-lg-0" data-aos="zoom-in">
+        <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 150px; height: 150px;">
+          <i class="fas fa-lightbulb fa-5x text-primary"></i>
+        </div>
+        <p class="mt-3 text-muted small">Your smart financial companion</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works -->
+<section class="my-5 py-5 bg-white shadow-sm rounded" data-aos="fade-up">
+  <div class="container text-center">
+    <h3 class="fw-bold mb-4 text-dark">🛠️ How StoX Works</h3>
+    <div class="row g-4 justify-content-center">
+      <div class="col-md-3">
+        <div class="step-box">
+          <div class="step-icon"><i class="fas fa-search"></i></div>
+          <h6 class="fw-semibold">1. Choose Stocks</h6>
+          <p class="text-muted small mb-0">Search and select the stocks you're interested in.</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="step-box">
+          <div class="step-icon"><i class="fas fa-chart-bar"></i></div>
+          <h6 class="fw-semibold">2. Analyze Trends</h6>
+          <p class="text-muted small mb-0">View price history and performance through dynamic charts.</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="step-box">
+          <div class="step-icon"><i class="fas fa-robot"></i></div>
+          <h6 class="fw-semibold">3. Get Predictions</h6>
+          <p class="text-muted small mb-0">Use AI tools to understand future trends and risks.</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="step-box">
+          <div class="step-icon"><i class="fas fa-star"></i></div>
+          <h6 class="fw-semibold">4. Follow Suggestions</h6>
+          <p class="text-muted small mb-0">Make informed decisions with smart recommendations.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="text-center mt-5" data-aos="fade-up">
+  <h4 class="fw-bold mb-3">Ready to explore the markets?</h4>
+  <a href="/dashboard" class="btn btn-lg btn-primary px-5 py-3 shadow">Go to Dashboard</a>
+</div>
+
+<script>
+  AOS.init({ duration: 1000, once: false });
+</script>
+{% endblock %}
