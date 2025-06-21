@@ -6,7 +6,7 @@ from langchain_groq import ChatGroq
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 
-GROQ_API_KEY = "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"  
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 # 1. Initialize LLM
 llm = ChatGroq(
