@@ -31,17 +31,16 @@ app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Or your mail server
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
-app.config['MAIL_USERNAME'] = 'ashwini.10521@gmail.com'
-app.config['MAIL_PASSWORD'] = 'tngt yvdm byuy dxij'
-app.config['MAIL_DEFAULT_SENDER'] = 'ashwini.10521@gmail.com'
-mail = Mail(app)
+app.config['MAIL_USERNAME'] = os.getenv("email_id")
+app.config['MAIL_PASSWORD'] = os.getenv("mail_pass")
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv("email_id")
 
 # MySQL configuration
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': 'Ash96808',
-    'database': 'stoxdb'
+    'password': 'os.getenv("db_password")',
+    'database': 'db_name'
 }
 
 
@@ -117,7 +116,7 @@ def otp_varification():
             return redirect(url_for('register_page'))
         
         otp = generate_otp()  # Generate OTP
-        otp_sent_time = datetime.now()  # Capture OTP sent time
+        otp_sent_time = datetime.now() 
         
         # Save OTP and email in session
         session['otp'] = otp
@@ -130,7 +129,7 @@ def otp_varification():
         # Send OTP email
         if send_otp_email(email, otp):
             flash('OTP has been sent to your email. Please check your inbox and enter the OTP.', 'info')
-            return render_template('otp_varification.html')  # Render OTP page for input
+            return render_template('otp_varification.html')  
         else:
             flash('Failed to send OTP. Please try again.', 'danger')
             return render_template('register.html')
@@ -185,7 +184,7 @@ def login():
             return redirect(url_for('login_page'))
 
         try:
-            cursor = connection.cursor(dictionary=True)  # Use dictionary cursor for easy access to column names
+            cursor = connection.cursor(dictionary=True) 
             cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
             user = cursor.fetchone()
 
@@ -450,7 +449,7 @@ def subscriptions():
 def trend_charts():
     user_id = session.get('user_id')
     if not user_id:
-        return redirect(url_for('login'))  # Redirect to login if user is not logged in
+        return redirect(url_for('login'))
     
     connection = mysql.connector.connect(**db_config)
     cursor = connection.cursor(dictionary=True)
@@ -669,8 +668,8 @@ def logout():
     return redirect(url_for('login_page'))
 
 
-NEWS_API_KEY = "7bfef36f6dba4d4b89e7dcb74c3e1877"  
-NEWS_API_URL = "https://newsapi.org/v2/everything"
+NEWS_API_KEY = os.getenv("NEWS_API_KEY")
+NEWS_API_URL = os.getenv("NEWS_API_URL")
 
 @app.route("/get_news")
 def get_news():
